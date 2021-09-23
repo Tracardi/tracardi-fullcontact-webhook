@@ -58,12 +58,12 @@ def register() -> Plugin:
             }
         ),
         metadata=MetaData(
-            name='tracardi-fullcontact-webhook',
+            name='Full contact webhook',
             desc='This plugin gets data about the provided e-mail from FullContact service.',
             type='flowNode',
             width=200,
             height=100,
             icon='icon',
-            group=["General"]
+            group=["Connectors"]
         )
     )
