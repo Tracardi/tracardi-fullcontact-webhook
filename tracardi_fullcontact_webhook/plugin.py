@@ -47,14 +47,17 @@ def register() -> Plugin:
             className='FullContactAction',
             inputs=["payload"],
             outputs=['payload'],
-            version='0.1',
+            version='0.1.2',
             license="MIT",
             author="Risto Kowaczewski",
             init={
                 "source": {
                     "id": None
                 },
-                "person": None
+                "pii": {
+                    "email": None,
+                    "phone": None
+                }
             }
         ),
         metadata=MetaData(
