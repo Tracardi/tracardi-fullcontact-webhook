@@ -34,9 +34,9 @@ class FullContactAction(ActionRunner):
         client = FullContactClient(self.source.token)
         async_result = client.person.enrich_async(**pii.dict())
         response = async_result.result()
-
         if response.is_successful:
             return Result(port="payload", value=response.get_details())
+        return Result(port="payload", value={})
 
 
 def register() -> Plugin:
@@ -59,7 +59,7 @@ def register() -> Plugin:
         ),
         metadata=MetaData(
             name='tracardi-fullcontact-webhook',
-            desc='This plugin gets data about the provided e-mail fro FullContact service.',
+            desc='This plugin gets data about the provided e-mail from FullContact service.',
             type='flowNode',
             width=200,
             height=100,
