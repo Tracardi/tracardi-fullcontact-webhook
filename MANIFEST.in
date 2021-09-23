@@ -1,2 +1,1 @@
 recursive-include tracardi_fullcontact_webhook/model *
-recursive-include tracardi_fullcontact_webhook/service *
