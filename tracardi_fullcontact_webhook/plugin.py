@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fullcontact import FullContactClient
-from tracardi.service.storage.helpers.source_reader import read_source
+from tracardi.service.storage.driver import storage
 from tracardi_dot_notation.dot_accessor import DotAccessor
 from tracardi_plugin_sdk.action_runner import ActionRunner
 from tracardi_plugin_sdk.domain.register import Plugin, Spec, MetaData
@@ -15,17 +15,14 @@ class FullContactAction(ActionRunner):
 
     @staticmethod
     async def build(**kwargs) -> 'FullContactAction':
-        plugin = FullContactAction(**kwargs)
-        source = await read_source(plugin.config.source.id)
-        plugin.source = FullContactSourceConfiguration(
-            **source.config
-        )
+        config = Configuration(**kwargs)
+        source = await storage.driver.resource.load(config.source.id)
+        source = FullContactSourceConfiguration(**source.config)
+        return FullContactAction(config, source)
 
-        return plugin
-
-    def __init__(self, **kwargs):
-        self.source = None  # type: Optional[FullContactSourceConfiguration]
-        self.config = Configuration(**kwargs)
+    def __init__(self, config: Configuration, source: Optional[FullContactSourceConfiguration]):
+        self.source = source
+        self.config = config
 
     async def run(self, payload):
         dot = DotAccessor(self.profile, self.session, payload, self.event, self.flow)
