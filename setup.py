@@ -17,7 +17,7 @@ setup(
         'tracardi',
         'tracardi-dot-notation',
         'pydantic',
-        'python-fullcontact'
+        'python-fullcontact==3.0.2'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
