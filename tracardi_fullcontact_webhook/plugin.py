@@ -37,8 +37,6 @@ class FullContactAction(ActionRunner):
 
                 mapper = DictTraverser(dot)
                 payload = mapper.reshape(reshape_template=self.config.pii.dict())
-                print(self.config.pii.dict())
-                print(payload)
 
                 async with session.request(
                         method="POST",
@@ -49,7 +47,6 @@ class FullContactAction(ActionRunner):
                         url='https://api.fullcontact.com/v3/person.enrich',
                         json=payload
                 ) as response:
-                    # todo add headers and cookies
                     result = {
                         "status": response.status,
                         "body": await response.json()
