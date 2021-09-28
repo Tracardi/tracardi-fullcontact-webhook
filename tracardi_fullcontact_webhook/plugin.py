@@ -3,7 +3,6 @@ from typing import Optional
 import aiohttp
 import asyncio
 from aiohttp import ClientConnectorError
-from fullcontact import FullContactClient
 from tracardi.service.storage.driver import storage
 from tracardi_dot_notation.dict_traverser import DictTraverser
 from tracardi_dot_notation.dot_accessor import DotAccessor
