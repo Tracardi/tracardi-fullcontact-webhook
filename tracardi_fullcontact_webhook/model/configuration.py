@@ -16,3 +16,4 @@ class PII(BaseModel):
 class Configuration(BaseModel):
     source: Entity
     pii: PII
+    timeout: int = 30

@@ -2,6 +2,6 @@ tracardi-plugin-sdk
 tracardi
 tracardi_dot_notation
 pydantic
-python-fullcontact==3.0.2
+aiohttp
 wheel
 twine

@@ -1,7 +1,11 @@
 from typing import Optional
 
+import aiohttp
+import asyncio
+from aiohttp import ClientConnectorError
 from fullcontact import FullContactClient
 from tracardi.service.storage.driver import storage
+from tracardi_dot_notation.dict_traverser import DictTraverser
 from tracardi_dot_notation.dot_accessor import DotAccessor
 from tracardi_plugin_sdk.action_runner import ActionRunner
 from tracardi_plugin_sdk.domain.register import Plugin, Spec, MetaData
@@ -27,13 +31,41 @@ class FullContactAction(ActionRunner):
     async def run(self, payload):
         dot = DotAccessor(self.profile, self.session, payload, self.event, self.flow)
 
-        pii = dot[self.config.pii]
-        client = FullContactClient(self.source.token)
-        async_result = client.person.enrich_async(**pii.dict())
-        response = async_result.result()
-        if response.is_successful:
-            return Result(port="payload", value=response.get_details())
-        return Result(port="payload", value={})
+        try:
+
+            timeout = aiohttp.ClientTimeout(total=self.config.timeout)
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+
+                mapper = DictTraverser(dot)
+                payload = mapper.reshape(reshape_template=self.config.pii.dict())
+                print(self.config.pii.dict())
+                print(payload)
+
+                async with session.request(
+                        method="POST",
+                        headers={
+                            "Content-type": "application/json",
+                            "Authorization": f"Bearer {self.source.token}"
+                        },
+                        url='https://api.fullcontact.com/v3/person.enrich',
+                        json=payload
+                ) as response:
+                    # todo add headers and cookies
+                    result = {
+                        "status": response.status,
+                        "body": await response.json()
+                    }
+
+                    if response.status in [200, 201, 202, 203, 204]:
+                        return Result(port="payload", value=result), Result(port="error", value=None)
+                    else:
+                        return Result(port="payload", value=None), Result(port="error", value=result)
+
+        except ClientConnectorError as e:
+            return Result(port="payload", value=None), Result(port="error", value=str(e))
+
+        except asyncio.exceptions.TimeoutError:
+            return Result(port="payload", value=None), Result(port="error", value="FullContact webhook timed out.")
 
 
 def register() -> Plugin:
@@ -43,8 +75,8 @@ def register() -> Plugin:
             module='tracardi_fullcontact_webhook.plugin',
             className='FullContactAction',
             inputs=["payload"],
-            outputs=['payload'],
-            version='0.1.2',
+            outputs=['payload', "error"],
+            version='0.1.3',
             license="MIT",
             author="Risto Kowaczewski",
             init={
@@ -53,7 +85,11 @@ def register() -> Plugin:
                 },
                 "pii": {
                     "email": None,
-                    "phone": None
+                    "emails": [],
+                    "phone": None,
+                    "phones": [],
+                    "location": None,
+                    "name": None
                 }
             }
         ),
