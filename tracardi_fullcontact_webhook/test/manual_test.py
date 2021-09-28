@@ -23,8 +23,8 @@ event = Event(id="event-id",
               session=Session(id="session-id"),
               source=Entity(id="source-id"),
               context=Context())
-result = run_plugin(FullContactAction, init, payload,
-                    profile)
+
+result = run_plugin(FullContactAction, init, payload, profile)
 
 print("OUTPUT:", result.output)
 print("PROFILE:", result.profile)
