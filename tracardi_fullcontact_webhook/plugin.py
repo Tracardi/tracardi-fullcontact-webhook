@@ -7,7 +7,8 @@ from tracardi.service.storage.driver import storage
 from tracardi_dot_notation.dict_traverser import DictTraverser
 from tracardi_dot_notation.dot_accessor import DotAccessor
 from tracardi_plugin_sdk.action_runner import ActionRunner
-from tracardi_plugin_sdk.domain.register import Plugin, Spec, MetaData
+from tracardi_plugin_sdk.domain.register import Plugin, Spec, MetaData, Form, FormGroup, FormField, FormComponent, \
+    FormFieldValidation
 from tracardi_plugin_sdk.domain.result import Result
 
 from tracardi_fullcontact_webhook.model.configuration import Configuration
@@ -72,7 +73,7 @@ def register() -> Plugin:
             className='FullContactAction',
             inputs=["payload"],
             outputs=['payload', "error"],
-            version='0.1.3',
+            version='0.1.4',
             license="MIT",
             author="Risto Kowaczewski",
             init={
@@ -87,7 +88,45 @@ def register() -> Plugin:
                     "location": None,
                     "name": None
                 }
-            }
+            },
+            form=Form(groups=[
+                FormGroup(
+                    fields=[
+                        FormField(
+                            id="source",
+                            name="FullContact resource",
+                            description="Select FullContact resource. Credentials from selected resource will be used "
+                                        "to connect the service.",
+                            required=True,
+                            component=FormComponent(type="resource", props={"label": "resource"})
+                        )
+                    ]
+                ),
+                FormGroup(
+                    fields=[
+                        FormField(
+                            id="pii.email",
+                            name="E-mail",
+                            description="Type path to E-mail",
+                            component=FormComponent(type="dotPath", props={"label": "Path to e-mail"}),
+                            validation=FormFieldValidation(
+                                regex=r"^[a-zA-Z0-9\@\.\-_]+$",
+                                message="This field must be in Tracardi dot path format."
+                            )
+                        ),
+                        FormField(
+                            id="pii.phone",
+                            name="Phone",
+                            description="Type path to phone",
+                            component=FormComponent(type="dotPath", props={"label": "Path to phone"}),
+                            validation=FormFieldValidation(
+                                regex=r"^[a-zA-Z0-9\@\.\-_]+$",
+                                message="This field must be in Tracardi dot path format."
+                            )
+                        )
+                    ]
+                ),
+            ]),
         ),
         metadata=MetaData(
             name='Full contact webhook',
