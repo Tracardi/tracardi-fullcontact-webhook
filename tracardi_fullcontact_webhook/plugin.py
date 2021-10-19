@@ -7,19 +7,22 @@ from tracardi.service.storage.driver import storage
 from tracardi_dot_notation.dict_traverser import DictTraverser
 from tracardi_dot_notation.dot_accessor import DotAccessor
 from tracardi_plugin_sdk.action_runner import ActionRunner
-from tracardi_plugin_sdk.domain.register import Plugin, Spec, MetaData, Form, FormGroup, FormField, FormComponent, \
-    FormFieldValidation
+from tracardi_plugin_sdk.domain.register import Plugin, Spec, MetaData, Form, FormGroup, FormField, FormComponent
 from tracardi_plugin_sdk.domain.result import Result
 
 from tracardi_fullcontact_webhook.model.configuration import Configuration
 from tracardi_fullcontact_webhook.model.full_contact_source_configuration import FullContactSourceConfiguration
 
 
+def validate(config: dict) -> Configuration:
+    return Configuration(**config)
+
+
 class FullContactAction(ActionRunner):
 
     @staticmethod
     async def build(**kwargs) -> 'FullContactAction':
-        config = Configuration(**kwargs)
+        config = validate(kwargs)
         source = await storage.driver.resource.load(config.source.id)
         source = FullContactSourceConfiguration(**source.config)
         return FullContactAction(config, source)
@@ -73,9 +76,10 @@ def register() -> Plugin:
             className='FullContactAction',
             inputs=["payload"],
             outputs=['payload', "error"],
-            version='0.1.4',
+            version='0.6.0',
             license="MIT",
             author="Risto Kowaczewski",
+            manual="fullcontact_webhook_action",
             init={
                 "source": {
                     "id": None
@@ -108,21 +112,13 @@ def register() -> Plugin:
                             id="pii.email",
                             name="E-mail",
                             description="Type path to E-mail",
-                            component=FormComponent(type="dotPath", props={"label": "Path to e-mail"}),
-                            validation=FormFieldValidation(
-                                regex=r"^[a-zA-Z0-9\@\.\-_]+$",
-                                message="This field must be in Tracardi dot path format."
-                            )
+                            component=FormComponent(type="dotPath", props={"label": "Path to e-mail"})
                         ),
                         FormField(
                             id="pii.phone",
                             name="Phone",
                             description="Type path to phone",
-                            component=FormComponent(type="dotPath", props={"label": "Path to phone"}),
-                            validation=FormFieldValidation(
-                                regex=r"^[a-zA-Z0-9\@\.\-_]+$",
-                                message="This field must be in Tracardi dot path format."
-                            )
+                            component=FormComponent(type="dotPath", props={"label": "Path to phone"})
                         )
                     ]
                 ),
@@ -130,7 +126,7 @@ def register() -> Plugin:
         ),
         metadata=MetaData(
             name='Full contact webhook',
-            desc='This plugin gets data about the provided e-mail from FullContact service.',
+            desc='This plugin retrieves data about the provided e-mail from FullContact service.',
             type='flowNode',
             width=200,
             height=100,

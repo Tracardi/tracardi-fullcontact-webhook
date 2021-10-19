@@ -1,4 +1,4 @@
-# Full contact service webhook
+# Full contact webhook
 
 ## Intro
 
@@ -81,7 +81,7 @@ You can use dotted notation to access data from profile or event. This can be do
 }
 ```
 
-String `profiile@traits.private.email` will be replaced with the value (path to value `traits.private.email`) from
+String `profile@traits.private.email` will be replaced with the value (path to value `traits.private.email`) from
 profile.
 
 # Input

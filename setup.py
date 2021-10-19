@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='tracardi-fullcontact-webhook',
-    version='0.1.4',
+    version='0.6.0',
     description='This plugin reads data from FullContact service about the provided e-mail.',
     long_description=long_description,
     long_description_content_type="text/markdown",
