@@ -3,6 +3,7 @@ from typing import Optional
 import aiohttp
 import asyncio
 from aiohttp import ClientConnectorError
+from tracardi.domain.resource import Resource, ResourceCredentials
 from tracardi.service.storage.driver import storage
 from tracardi_dot_notation.dict_traverser import DictTraverser
 from tracardi_dot_notation.dot_accessor import DotAccessor
@@ -23,12 +24,13 @@ class FullContactAction(ActionRunner):
     @staticmethod
     async def build(**kwargs) -> 'FullContactAction':
         config = validate(kwargs)
-        source = await storage.driver.resource.load(config.source.id)
-        source = FullContactSourceConfiguration(**source.config)
-        return FullContactAction(config, source)
+        resource = await storage.driver.resource.load(config.source.id)  # type: Resource
 
-    def __init__(self, config: Configuration, source: Optional[FullContactSourceConfiguration]):
-        self.source = source
+        return FullContactAction(config, resource.credentials)
+
+    def __init__(self, config: Configuration, credentials: ResourceCredentials):
+        self.credentials = credentials.get_credentials(self,
+                                                       output=FullContactSourceConfiguration)  # type: FullContactSourceConfiguration
         self.config = config
 
     async def run(self, payload):
@@ -46,7 +48,7 @@ class FullContactAction(ActionRunner):
                         method="POST",
                         headers={
                             "Content-type": "application/json",
-                            "Authorization": f"Bearer {self.source.token}"
+                            "Authorization": f"Bearer {self.credentials.token}"
                         },
                         url='https://api.fullcontact.com/v3/person.enrich',
                         json=payload
@@ -76,7 +78,7 @@ def register() -> Plugin:
             className='FullContactAction',
             inputs=["payload"],
             outputs=['payload', "error"],
-            version='0.6.0',
+            version='0.6.0.1',
             license="MIT",
             author="Risto Kowaczewski",
             manual="fullcontact_webhook_action",

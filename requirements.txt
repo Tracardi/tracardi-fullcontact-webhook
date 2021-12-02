@@ -1,5 +1,5 @@
-tracardi-plugin-sdk>=0.6.18
-tracardi
+tracardi-plugin-sdk>=0.6.30
+tracardi>=0.6.23
 tracardi_dot_notation
 pydantic
 aiohttp
