@@ -104,7 +104,7 @@ def register() -> Plugin:
                             description="Select FullContact resource. Credentials from selected resource will be used "
                                         "to connect the service.",
                             required=True,
-                            component=FormComponent(type="resource", props={"label": "resource"})
+                            component=FormComponent(type="resource", props={"label": "resource", "tag": "token"})
                         )
                     ]
                 ),
